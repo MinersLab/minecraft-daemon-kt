@@ -8,22 +8,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Checkout sources
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v5
         with:
-          java-version: '25'
-          distribution: 'adopt'
+          distribution: 'temurin'
+          java-version: 25
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew :mcdk-launcher:shadowJar
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: Minecraft Daemon Kotlin
-          path: build/libs/
+          name: Minecraft Daemon Kotlin Launcher
+          path: mcdk-launcher/build/libs/

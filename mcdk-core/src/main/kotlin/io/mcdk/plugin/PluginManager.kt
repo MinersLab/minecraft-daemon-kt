@@ -3,25 +3,37 @@ package io.mcdk.plugin
 import io.mcdk.Mcdk
 import io.mcdk.core.Identifier
 import io.mcdk.util.configuration.ConfigTypes
+import io.mcdk.util.getValue
 import io.mcdk.util.platform.VersionRange
+import io.mcdk.util.setValue
 import java.io.File
 import java.util.zip.ZipFile
 
 public class PluginManager(private val mcdk: Mcdk) {
 
+    public var config: PluginManagerConfig by mcdk.configManager.getConfig(Identifier("plugin"))
     public val pluginDirectory: File = mcdk.runtimeDirectory.resolve("plugins").also(File::mkdirs)
 
     public val plugins: Map<Identifier.Namespace, PluginClassLoader>
         field = mutableMapOf()
 
-    public fun scan(): Iterator<Pair<File, PluginMetadata>> = iterator {
+    public fun isPluginDisabled(name: Identifier.Namespace): Boolean = name in config.disabledPlugins
+
+    public fun scanFiles(): Iterator<File> = iterator {
         for (pluginFile in pluginDirectory.walk()) {
             if (!pluginFile.name.endsWith(".jar")) continue
-            yield(pluginFile to readMetadata(pluginFile))
+            yield(pluginFile)
         }
     }
 
-    private fun readMetadata(file: File): PluginMetadata =
+    public fun scan(): Iterator<Pair<File, PluginMetadata>> = iterator {
+        for (pluginFile in scanFiles()) {
+            val metadata = readMetadata(pluginFile)
+            yield(pluginFile to metadata)
+        }
+    }
+
+    public fun readMetadata(file: File): PluginMetadata =
         ZipFile(file).use { zipFile ->
             zipFile.getInputStream(zipFile.getEntry("META-INF/plugin.jsonc")).use { inputStream ->
                 inputStream.use { stream ->
@@ -61,6 +73,7 @@ public class PluginManager(private val mcdk: Mcdk) {
 
     public fun load(plugin: PluginClassLoader) {
         if (plugin.status == PluginStatus.LOADED) return
+        if (isPluginDisabled(plugin.metadata.name)) return
         for (dependency in plugin.metadata.dependencies) {
             val plugin = getPluginByName(dependency.name)
                 ?: throw IllegalStateException("Expected dependency '${dependency}', but found NOTHING")
@@ -76,6 +89,7 @@ public class PluginManager(private val mcdk: Mcdk) {
 
     public fun construct(plugin: PluginClassLoader) {
         if (plugin.status != PluginStatus.IDLE) return
+        if (isPluginDisabled(plugin.metadata.name)) return
         for (dependency in plugin.metadata.dependencies) {
             val plugin = getPluginByName(dependency.name)
                 ?: throw IllegalStateException("Expected dependency '${dependency}', but found NOTHING")

@@ -1,6 +1,7 @@
 package io.mcdk
 
 import io.mcdk.api.command.CommandManager
+import io.mcdk.api.permission.PermissionManager
 import io.mcdk.plugin.PluginManager
 import io.mcdk.plugin.SystemClassLoader
 import io.mcdk.api.platform.Platform
@@ -25,6 +26,7 @@ public class Mcdk(
     public val configManager: ConfigManager = ConfigManager(this)
     public val pluginManager: PluginManager = PluginManager(this)
     public val commandManager: CommandManager = CommandManager(this)
+    public val permissionManager: PermissionManager = PermissionManager(this)
 
     public val platform: Platform<*> by ref {
         val platformClass = Thread.currentThread().contextClassLoader.loadClass(McdkConfig.current.platform).kotlin

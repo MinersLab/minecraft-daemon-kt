@@ -23,6 +23,17 @@ public class Config<T : Any>(
 
     private var value: Option<T> = None
 
+    public fun reload() {
+        val loadedValue = configContainer.read {
+            configType.decodeFromStream(
+                this,
+                serializer
+            )
+        }
+        (stateFlow as MutableStateFlow).tryEmit(loadedValue)
+        value = Some(loadedValue)
+    }
+
     public fun save() {
         configContainer.createConfig()
         configContainer.write {

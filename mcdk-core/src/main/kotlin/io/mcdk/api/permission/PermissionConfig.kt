@@ -1,0 +1,24 @@
+package io.mcdk.api.permission
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
+public data class PermissionConfig(
+    val groups: MutableMap<String, Group> = mutableMapOf(),
+    val users: MutableMap<String, User> = mutableMapOf()
+) {
+
+    @Serializable
+    public data class Group(
+        val extends: MutableList<String> = mutableListOf(),
+        val permissions: MutableMap<String, JsonElement> = mutableMapOf()
+    )
+
+    @Serializable
+    public data class User(
+        val groups: MutableSet<String> = mutableSetOf(),
+        val permissions: MutableMap<String, JsonElement> = mutableMapOf()
+    )
+
+}

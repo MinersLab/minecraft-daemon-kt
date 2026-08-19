@@ -1,0 +1,6 @@
+{
+    "name": "vanilla",
+    "version": "${version}",
+    "description": "A plugin for the vanilla platform.",
+    "entrypoint": "io.mcdk.plugin.platform.vanilla.VanillaPlatformPlugin"
+}

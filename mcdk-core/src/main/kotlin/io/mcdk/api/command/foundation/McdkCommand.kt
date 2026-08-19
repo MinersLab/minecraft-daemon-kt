@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType.string
 import com.mojang.brigadier.arguments.StringArgumentType.word
 import io.mcdk.McdkConfig
+import io.mcdk.McdkMetadata
 import io.mcdk.api.command.ICommandRegistration
 import io.mcdk.api.command.argument
 import io.mcdk.api.command.node.IsServer
@@ -31,6 +32,27 @@ public object McdkCommand {
             run {
                 source.sender.sendFeedback {
                     RainbowText("Minecraft Daemon Kotlin (MCDK)")
+                }
+                source.sender.sendFeedback {
+                    ListText(
+                        AnnotatedText(
+                            color = NamedTextColor.GREEN,
+                            text = PlainText("v${McdkMetadata.version.version}"),
+                        ),
+                        PlainText(" "),
+                        AnnotatedText(
+                            color = NamedTextColor.GREEN,
+                            text = PlainText("${McdkMetadata.gitBranch}/${McdkMetadata.gitHash}"),
+                        )
+                    )
+                }
+                source.sender.sendFeedback {
+                    ListText(
+                        AnnotatedText(
+                            color = NamedTextColor.DARK_GREEN,
+                            text = PlainText("Build - ${McdkMetadata.buildDate}"),
+                        )
+                    )
                 }
             }
             literal("perms") {
